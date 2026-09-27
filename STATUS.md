@@ -16,13 +16,19 @@ Local authenticated HTTP service plus stdio proxy for Codex/Kimi; no extension.
   Blueprint disabled in Codex. Native tools appear after client reload; diagnostic
   CLI already uses real MCP to work in the current session.
 - Dedicated visible Firefox opened GetOnBoard and returned a verified screenshot.
-- Initial Chromium Google OAuth was rejected; Firefox sign-in awaits user result.
+- Initial Chromium Google OAuth was rejected; Firefox email sign-in subsequently succeeded.
   No stealth or account-security changes. Existing regular Firefox profile untouched.
 - Job-search handoff updated with current schema and bounded Kimi tasks.
 
 ## Remaining
 
-Human sign-in is unverified. No real job application submitted or receipt observed.
+Human email sign-in verified. Live GetOnBoard CV upload, Trix form filling and
+Chosen dropdown selection verified. No real job application submitted or receipt
+observed: STEUART requires a portfolio website, rejecting a GitHub profile URL.
+Pointer actions later stalled at Firefox stability checks; verified enabled buttons
+worked using normal keyboard Enter. Custom Chosen dropdown required its visible
+search input rather than the hidden select. These observations are recorded in
+the job-search skill; no force-click, hidden mutation or validation bypass used.
 Kimi model-driven browser discovery is not yet tested and model alias is not
 confirmed as 2.8. Application-specific skill remains pending live success.
 
