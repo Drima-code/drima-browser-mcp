@@ -1,6 +1,8 @@
 """Persistent visible browser and small, explicit browser operations."""
 
 import asyncio
+import os
+import subprocess
 from collections import deque
 from pathlib import Path
 from typing import Literal
@@ -87,6 +89,32 @@ class Browser:
         self.downloads = {}
         self.tasks = set()
 
+    async def _hide_window(self):
+        """Keep the headed dedicated browser from stealing focus or Alt-Tab space."""
+        if self.headless or not os.environ.get("DISPLAY"):
+            return
+        for _ in range(20):
+            try:
+                result = subprocess.run(
+                    ["wmctrl", "-lx"],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=1,
+                )
+                for line in result.stdout.splitlines():
+                    fields = line.split(None, 4)
+                    if len(fields) >= 5 and "firefox" in fields[3].lower():
+                        subprocess.run(
+                            ["wmctrl", "-ir", fields[0], "-b", "add,hidden"],
+                            check=False,
+                            timeout=1,
+                        )
+                        return
+            except (FileNotFoundError, subprocess.SubprocessError):
+                return
+            await asyncio.sleep(0.25)
+
     async def ensure(self):
         if self.context is not None:
             return
@@ -108,6 +136,7 @@ class Browser:
                 else {}
             ),
         )
+        self.tasks.add(asyncio.create_task(self._hide_window()))
         self.context.set_default_timeout(8000)
         self.context.on("page", self.register)
         self.context.on("close", self.closed)

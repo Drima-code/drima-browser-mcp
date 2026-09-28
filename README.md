@@ -39,6 +39,11 @@ Sign in normally in that window. CAPTCHA and identity checks are completed by th
 user. Accounts from your existing Firefox profile are not imported or read. Some sites may reject
 automation-controlled browsers or OAuth flows; this server does not bypass them.
 
+The dedicated headed Firefox window is hidden from focus and normal Alt-Tab space
+shortly after launch when `wmctrl` is available. Browser actions continue in the
+background; bring the window forward with the desktop window switcher when a
+CAPTCHA or sign-in needs to be completed.
+
 ## MCP client configuration
 
 Point a stdio client to the installed executable:

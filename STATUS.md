@@ -19,6 +19,10 @@ Local authenticated HTTP service plus stdio proxy for Codex/Kimi; no extension.
 - Initial Chromium Google OAuth was rejected; Firefox email sign-in subsequently succeeded.
   No stealth or account-security changes. Existing regular Firefox profile untouched.
 - Job-search handoff updated with current schema and bounded Kimi tasks.
+- Dedicated headed Firefox windows are hidden from focus and normal Alt-Tab space
+  shortly after launch using the local window manager when `DISPLAY` and `wmctrl`
+  are available. The browser remains authenticated and can be brought forward for
+  manual CAPTCHA or sign-in work.
 
 ## Remaining
 
