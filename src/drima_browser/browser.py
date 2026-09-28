@@ -136,7 +136,9 @@ class Browser:
                 else {}
             ),
         )
-        self.tasks.add(asyncio.create_task(self._hide_window()))
+        # Complete this before browser_open navigates, so the headed window never
+        # briefly steals focus during normal agent navigation.
+        await self._hide_window()
         self.context.set_default_timeout(8000)
         self.context.on("page", self.register)
         self.context.on("close", self.closed)
