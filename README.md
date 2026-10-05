@@ -1,6 +1,6 @@
 # Drima Browser MCP
 
-A local, visible browser controlled through MCP. No extension, subscription,
+A local, visible browser controlled through MCP. No required extension, subscription,
 cloud relay, feature tier, or API key. Independently implemented using the official
 MCP Python SDK and Playwright; no Blueprint code is included.
 
@@ -174,6 +174,50 @@ only supports Google, sign in through your regular, non-automated browser and
 complete that site's workflow there. Do not disable account security, spoof the
 browser, or copy authentication cookies to work around rejection.
 See [Google's supported-browser guidance](https://support.google.com/accounts/answer/7675428).
+
+## Optional connector for your regular Firefox (experimental)
+
+The default MCP launches a separate profile and cannot attach to an already-running
+normal Firefox. This connector instead uses Firefox's supported extension/native
+messaging APIs on **only tabs you explicitly approve**, keeping their existing
+sessions in that browser. It does not copy cookies, access Google login pages,
+spoof automation, or change account security. Only Wellfound and Chiletrabajos
+HTTPS origins are enabled in this initial version. No all-sites permission.
+
+```bash
+uv sync --frozen
+uv run --frozen python scripts/install_regular_connector.py
+```
+
+In your normal Firefox, open `about:debugging#/runtime/this-firefox`, click
+**Load Temporary Add-on**, and select this checkout's `extension/manifest.json`.
+Click the connector's toolbar button on the job-site tab: **ON** approves it;
+click again to revoke. Leaving the approved origin revokes approval automatically.
+An **ERR** badge indicates a native-host connection problem. Temporary extensions
+unload when Firefox restarts; permanent installation requires Mozilla signing.
+
+Use a separate MCP entry with command `/absolute/path/.venv/bin/drima-browser`
+and args `["regular-stdio"]`. Existing `stdio` stays on the dedicated browser.
+For immediate diagnostics without client rediscovery:
+
+```bash
+uv run --frozen drima-browser regular-call tabs
+uv run --frozen drima-browser regular-call snapshot '{"tab_id":"APPROVED_ID"}'
+```
+
+Available tools: approved-tab listing, bounded top-frame snapshots and single
+strict-selector click/fill/select/check/uncheck actions. Password/token controls
+blocked. No arbitrary JS evaluation, network interception, tab-wide access or
+automatic retries. Upload files manually in normal Firefox for now. User handles
+login/CAPTCHA/assessments. This is synthetic-tested; real Firefox installation
+and the user approval step must still be verified before claiming live support.
+
+Linux only: native host uses a mode-0600 Unix socket inside a mode-0700 user-owned
+directory. It is a trusted-user local bridge, not isolation from same-user malware.
+No HTTP listener or external relay. Install only in a browser you control.
+
+Reference: [Mozilla native messaging](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_messaging)
+and [activeTab permissions](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_the_Tabs_API).
 
 ## License
 

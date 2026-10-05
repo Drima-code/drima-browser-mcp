@@ -1,5 +1,19 @@
 # Status — 2026-10-05
 
+## Optional regular-Firefox connector
+
+Added experimental activeTab + nativeMessaging connector for explicitly approved
+Wellfound/Chiletrabajos tabs. Toolbar approval/revocation; leaving origin revokes.
+Separate regular-stdio MCP and regular-call diagnostics; original MCP unchanged.
+Private Unix socket; no cookies, OAuth pages, arbitrary evaluation or all-site
+permissions. Top-frame snapshots and one strict action per call; manual uploads.
+Six synthetic connector tests pass, including real native-host IPC roundtrip,
+origin revocation, duplicate-match rejection and sensitive-control exclusion.
+Full suite: 25 tests passed in 27.07 seconds; Ruff/lockfile/diff checks passed.
+Original authenticated transport smoke test still passes.
+Native host registered locally and separate MCP configured. Live regular-browser
+use awaits user loading temporary extension and toolbar approval; not yet verified.
+
 ## Public distribution preparation
 
 David authorized public GitHub distribution under MIT. Added license, package

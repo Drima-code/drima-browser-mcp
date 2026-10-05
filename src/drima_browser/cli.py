@@ -114,6 +114,10 @@ def main():
     serve.add_argument("--headless", action="store_true")
     serve.add_argument("--browser", choices=["firefox", "chromium"], default="firefox")
     sub.add_parser("stdio")
+    sub.add_parser("regular-stdio")
+    regular_call = sub.add_parser("regular-call")
+    regular_call.add_argument("operation", choices=["tabs", "snapshot", "act"])
+    regular_call.add_argument("arguments", nargs="?", default="{}")
     call_parser = sub.add_parser("call")
     call_parser.add_argument("tool")
     call_parser.add_argument("arguments", nargs="?", default="{}")
@@ -130,6 +134,23 @@ def main():
             access_log=False,
             log_level="warning",
         )
+    elif args.command == "regular-stdio":
+        from drima_browser.regular import create_regular_server
+
+        create_regular_server().run()
+    elif args.command == "regular-call":
+        from drima_browser.regular import request
+
+        try:
+            print(
+                json.dumps(
+                    asyncio.run(
+                        request({**json.loads(args.arguments), "op": args.operation})
+                    )
+                )
+            )
+        except (RuntimeError, TimeoutError, OSError) as exc:
+            parser.exit(1, f"{exc}\n")
     elif args.command == "stdio":
         asyncio.run(proxy(args))
     else:
