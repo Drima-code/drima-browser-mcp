@@ -14,6 +14,8 @@ error, report completed actions, and never automatically repeat a submission.
 Requires Python 3.12+, uv and a graphical desktop for visible mode.
 
 ```bash
+git clone https://github.com/Drima-code/drima-browser-mcp.git
+cd drima-browser-mcp
 uv sync --frozen
 uv run --frozen playwright install firefox chromium --no-shell
 uv run --frozen drima-browser serve
@@ -162,3 +164,18 @@ Firefox is the default. To select Chromium, run `drima-browser serve --browser c
 Each engine has a separate persistent profile. Google rejected sign-in in the
 initial Chromium session; changing engines does not guarantee OAuth acceptance.
 Use the site’s supported login methods and leave account verification to the user.
+
+### Google sign-in rejected
+
+Google may reject automation-controlled browsers even when the user types the
+credentials manually. Firefox does not guarantee acceptance. Use the destination
+site's supported email/password login or account recovery instead. If the account
+only supports Google, sign in through your regular, non-automated browser and
+complete that site's workflow there. Do not disable account security, spoof the
+browser, or copy authentication cookies to work around rejection.
+See [Google's supported-browser guidance](https://support.google.com/accounts/answer/7675428).
+
+## License
+
+[MIT](LICENSE). Browser profiles, tokens, downloads and personal screenshots are
+local runtime data and are not distributed with this repository.

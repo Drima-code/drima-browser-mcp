@@ -1,6 +1,9 @@
 [project]
 name = "drima-browser-mcp"
 version = "0.1.0"
+description = "Local persistent browser MCP with authenticated service and stdio clients"
+readme = "README.md"
+license = "MIT"
 requires-python = ">=3.12"
 dependencies = [
     "httpx2>=2.13.1",

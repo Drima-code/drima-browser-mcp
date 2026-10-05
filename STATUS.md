@@ -1,4 +1,20 @@
-# Status — 2026-09-27
+# Status — 2026-10-05
+
+## Public distribution preparation
+
+David authorized public GitHub distribution under MIT. Added license, package
+metadata, clone instructions and Google sign-in troubleshooting. Reviewed tracked
+files and all four existing commits for credential/personal-data patterns; no
+credentials, browser profiles or personal screenshots found. Runtime state stays
+outside git. Historical synthetic tests and transport checks rerun before release.
+Release checks: 19 tests passed in 25.37 seconds; Ruff and lockfile checks passed;
+authenticated HTTP/stdio transport, image forwarding and reconnect smoke test passed.
+Google rejected the dedicated Firefox OAuth flow too; use supported site login
+or a regular non-automated browser, never a security bypass.
+
+The older notes below describe initial September verification, not current job
+application state. Actual application receipts remain in the private job-search
+repository and are not part of this public project's release materials.
 
 Implemented 14 browser MCP tools using official MCP SDK and Playwright.
 Default engine Firefox; optional Chromium, isolated persistent profiles.
@@ -36,5 +52,5 @@ the job-search skill; no force-click, hidden mutation or validation bypass used.
 Kimi model-driven browser discovery is not yet tested and model alias is not
 confirmed as 2.8. Application-specific skill remains pending live success.
 
-Repository is private. Browser data lives outside git under
+Repository is prepared for public distribution. Browser data lives outside git under
 `~/.local/share/drima-browser`. Do not publish tokens, profiles or personal evidence.

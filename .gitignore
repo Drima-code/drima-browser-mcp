@@ -5,6 +5,12 @@ __pycache__/
 *.egg-info/
 dist/
 .env
+.env.*
+*.pem
+*.key
 profile/
+browser-profile*/
+downloads/
+screenshots/
 artifacts/
 *.log
