@@ -177,6 +177,13 @@ See [Google's supported-browser guidance](https://support.google.com/accounts/an
 
 ## Optional connector for your regular Firefox (experimental)
 
+The Firefox extension is named **MCP Browser Bridge**. Its source is in
+`extension/` and is distributed under this repository's MIT license. It requires
+the local native host below; installing the extension alone is not sufficient.
+For permanent installation, submit its package to Mozilla for signing and install
+the signed XPI through `about:addons`. A public store listing is being prepared;
+no approved Mozilla listing is claimed yet.
+
 The default MCP launches a separate profile and cannot attach to an already-running
 normal Firefox. This connector instead uses Firefox's supported extension/native
 messaging APIs on **only tabs you explicitly approve**, keeping their existing

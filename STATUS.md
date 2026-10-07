@@ -1,5 +1,12 @@
 # Status — 2026-10-05
 
+## Public Firefox listing preparation — 2026-10-07
+
+David requested public Mozilla distribution and the name MCP Browser Bridge.
+Updated display name and toolbar title; existing extension ID and minimal
+permissions preserved. Source remains MIT in the public GitHub repository.
+Mozilla upload/signing and listing approval are pending; not yet published on AMO.
+
 ## Optional regular-Firefox connector
 
 Added experimental activeTab + nativeMessaging connector for explicitly approved
