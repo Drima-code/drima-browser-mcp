@@ -6,6 +6,9 @@ David requested public Mozilla distribution and the name MCP Browser Bridge.
 Updated display name and toolbar title; existing extension ID and minimal
 permissions preserved. Source remains MIT in the public GitHub repository.
 Mozilla upload/signing and listing approval are pending; not yet published on AMO.
+AMO rejected the initial archive for missing data_collection_permissions. Version
+0.1.1 declares approved-tab content and personal data transferred via native
+messaging, requires Firefox 140+ built-in consent, and includes a privacy notice.
 
 ## Optional regular-Firefox connector
 

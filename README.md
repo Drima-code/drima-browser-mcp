@@ -179,6 +179,10 @@ See [Google's supported-browser guidance](https://support.google.com/accounts/an
 
 The Firefox extension is named **MCP Browser Bridge**. Its source is in
 `extension/` and is distributed under this repository's MIT license. It requires
+Firefox 140+ for built-in data-transfer consent. See [privacy notice](PRIVACY.md):
+approved page content goes to your local MCP client, which may send it to its AI
+provider depending on that client's configuration.
+It also requires
 the local native host below; installing the extension alone is not sufficient.
 For permanent installation, submit its package to Mozilla for signing and install
 the signed XPI through `about:addons`. A public store listing is being prepared;
