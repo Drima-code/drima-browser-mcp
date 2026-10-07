@@ -1,5 +1,18 @@
 # Status — 2026-10-05
 
+## Access mode choices — 2026-10-07
+
+Version 0.2.0 removes job-site allowlisting and supports manual per-tab approval
+on regular HTTP/HTTPS sites by default. Packaged popup offers explicitly confirmed
+automatic access to current/future website tabs via optional host permissions.
+Automatic opt-in persists; manual switch/revocation stops broad access. Internal,
+file and private pages excluded; Firefox protected-page restrictions retained.
+Expanded truthful data-transfer disclosure and privacy notice. No tab-count cap;
+existing resource/message-size limits remain. Live 0.2.0 install/AMO pending.
+Seven connector tests passed, including popup consent/denial, all-site permission
+revocation, persistence, private/internal exclusion and arbitrary-site approval.
+Full release run: 26 tests passed in 34.13 seconds. Ruff and diff checks passed.
+
 ## Public Firefox listing preparation — 2026-10-07
 
 David requested public Mozilla distribution and the name MCP Browser Bridge.

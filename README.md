@@ -190,10 +190,12 @@ no approved Mozilla listing is claimed yet.
 
 The default MCP launches a separate profile and cannot attach to an already-running
 normal Firefox. This connector instead uses Firefox's supported extension/native
-messaging APIs on **only tabs you explicitly approve**, keeping their existing
-sessions in that browser. It does not copy cookies, access Google login pages,
-spoof automation, or change account security. Only Wellfound and Chiletrabajos
-HTTPS origins are enabled in this initial version. No all-sites permission.
+messaging APIs, keeping existing sessions in that browser. **Manual per-tab approval
+is the default**, on any regular HTTP/HTTPS website. The toolbar popup also offers
+explicit opt-in automatic access to all current and future regular website tabs.
+It does not copy cookies, spoof automation or change account security. It cannot
+bypass Firefox's protected-page restrictions. Private tabs, file URLs and internal
+browser pages are excluded.
 
 ```bash
 uv sync --frozen
@@ -202,8 +204,13 @@ uv run --frozen python scripts/install_regular_connector.py
 
 In your normal Firefox, open `about:debugging#/runtime/this-firefox`, click
 **Load Temporary Add-on**, and select this checkout's `extension/manifest.json`.
-Click the connector's toolbar button on the job-site tab: **ON** approves it;
-click again to revoke. Leaving the approved origin revokes approval automatically.
+Open the toolbar popup and click **Approve this tab**: **ON** indicates approval;
+use **Revoke this tab** to stop it. Leaving the approved origin revokes approval.
+For automatic mode, acknowledge its privacy warning and click **Enable automatic
+access**, then accept Firefox's optional website permission prompt. **ALL** marks
+that mode, which persists across restarts. **Switch to manual** stops automatic
+access and removes those optional permissions. The native MCP client cannot change
+the access mode. No built-in tab-count cap; resource/message-size limits still apply.
 An **ERR** badge indicates a native-host connection problem. Temporary extensions
 unload when Firefox restarts; permanent installation requires Mozilla signing.
 
@@ -218,10 +225,10 @@ uv run --frozen drima-browser regular-call snapshot '{"tab_id":"APPROVED_ID"}'
 
 Available tools: approved-tab listing, bounded top-frame snapshots and single
 strict-selector click/fill/select/check/uncheck actions. Password/token controls
-blocked. No arbitrary JS evaluation, network interception, tab-wide access or
+blocked. No arbitrary JS evaluation, network interception or
 automatic retries. Upload files manually in normal Firefox for now. User handles
-login/CAPTCHA/assessments. This is synthetic-tested; real Firefox installation
-and the user approval step must still be verified before claiming live support.
+login/CAPTCHA/assessments. Mode controls are synthetic-tested; live installation
+of version 0.2.0 and real optional-permission prompting still need verification.
 
 Linux only: native host uses a mode-0600 Unix socket inside a mode-0700 user-owned
 directory. It is a trusted-user local bridge, not isolation from same-user malware.

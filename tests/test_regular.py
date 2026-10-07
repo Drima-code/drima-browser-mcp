@@ -147,21 +147,33 @@ async def test_content_controls_and_no_duplicate_submission():
 def test_background_permissions_and_origin_revocation():
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "extension/manifest.json").read_text())
-    assert set(manifest["permissions"]) == {"activeTab", "nativeMessaging"}
+    assert set(manifest["permissions"]) == {"activeTab", "nativeMessaging", "storage"}
+    assert set(manifest["optional_permissions"]) == {"http://*/*", "https://*/*"}
     harness = r"""
 const vm=require('vm'), fs=require('fs'), assert=require('assert');
 const events={}, messages=[];
-let listener;
+let listener, granted=false, active=1, settings={};
 const tabs=new Map([[1,{id:1,title:'Job',url:'https://wellfound.com/jobs/1?private=omit'}],
- [2,{id:2,title:'Other',url:'https://example.com/'}]]);
+ [2,{id:2,title:'Other',url:'https://example.com/'}],
+ [3,{id:3,title:'Private',url:'https://private.example/',incognito:true}],
+ [4,{id:4,title:'Internal',url:'about:config'}]]);
 const event=name=>({addListener:fn=>events[name]=fn});
 const port={onMessage:{addListener:fn=>listener=fn},onDisconnect:event('disconnect'),postMessage:m=>messages.push(m)};
 const browser={tabs:{get:async id=>tabs.get(id),executeScript:async()=>{},sendMessage:async()=>({ok:true}),
- onRemoved:event('removed'),onUpdated:event('updated')},runtime:{connectNative:()=>port},
- browserAction:{onClicked:event('clicked'),setBadgeText:async()=>{}}};
+ query:async q=>q.active?[tabs.get(active)]:Array.from(tabs.values()),
+ onRemoved:event('removed'),onUpdated:event('updated')},
+ runtime:{id:'bridge',getURL:p=>'moz-extension://bridge/'+p,connectNative:()=>port,onMessage:event('ui')},
+ permissions:{contains:async()=>granted,onRemoved:event('permissionRemoved')},
+ storage:{local:{get:async()=>settings,set:async s=>{settings={...settings,...s}}}},
+ browserAction:{setBadgeText:async()=>{}}};
 vm.runInNewContext(fs.readFileSync(process.argv[1],'utf8'),{browser,URL,Map,Set});
+const sender={id:'bridge',url:'moz-extension://bridge/popup.html'};
+const ui=r=>events.ui(r,sender);
 (async()=>{
- await events.clicked(tabs.get(1));
+ assert.equal((await ui({ui:'state'})).mode,'manual');
+ await assert.rejects(()=>ui({ui:'all',confirmed:true}),/permission/);
+ await assert.rejects(()=>events.ui({ui:'all',confirmed:true},{id:'bridge',url:'https://evil.example'}),/popup/);
+ await ui({ui:'toggle',tabId:1});
  await listener({id:'list',op:'tabs'});
  assert.equal(messages.at(-1).result.tabs.length,1);
  assert.equal(messages.at(-1).result.tabs[0].url,'https://wellfound.com/jobs/1');
@@ -171,6 +183,44 @@ vm.runInNewContext(fs.readFileSync(process.argv[1],'utf8'),{browser,URL,Map,Set}
  events.updated(1,{url:tabs.get(1).url});
  await listener({id:'revoked',op:'snapshot',tab_id:'1'});
  assert(messages.at(-1).error.includes('not approved'));
+ // Any HTTP/HTTPS website can be manually approved, not just job sites.
+ active=2;
+ await ui({ui:'toggle',tabId:2});
+ await listener({id:'other',op:'snapshot',tab_id:'2'});
+ assert(messages.at(-1).result.ok);
+ granted=true;
+ await ui({ui:'all',confirmed:true});
+ await listener({id:'all',op:'tabs'});
+ assert.equal(messages.at(-1).result.mode,'all');
+ assert.equal(messages.at(-1).result.tabs.length,2);
+ tabs.set(5,{id:5,title:'Future',url:'http://future.example/'});
+ await listener({id:'future',op:'snapshot',tab_id:'5'});
+ assert(messages.at(-1).result.ok);
+ await listener({id:'private',op:'snapshot',tab_id:'3'});
+ assert(messages.at(-1).error.includes('not approved'));
+ await listener({id:'internal',op:'snapshot',tab_id:'4'});
+ assert(messages.at(-1).error.includes('not approved'));
+ // Native clients cannot change modes.
+ await listener({id:'bad-mode',op:'all',tab_id:'1'});
+ assert(messages.at(-1).error.includes('Unsupported'));
+ // Revocation is checked before every operation, even before event delivery.
+ granted=false;
+ await listener({id:'revoked-grant',op:'snapshot',tab_id:'2'});
+ assert(messages.at(-1).error.includes('not approved'));
+ await events.permissionRemoved();
+ assert.equal((await ui({ui:'state'})).mode,'manual');
+ granted=true;
+ await ui({ui:'all',confirmed:true});
+ await ui({ui:'manual'});
+ await listener({id:'stopped',op:'tabs'});
+ assert.equal(messages.at(-1).result.tabs.length,0);
+ // Restart restores opt-in only if host permissions still exist.
+ settings={mode:'all'};
+ vm.runInNewContext(fs.readFileSync(process.argv[1],'utf8'),{browser,URL,Map,Set});
+ assert.equal((await ui({ui:'state'})).mode,'all');
+ granted=false;
+ vm.runInNewContext(fs.readFileSync(process.argv[1],'utf8'),{browser,URL,Map,Set});
+ assert.equal((await ui({ui:'state'})).mode,'manual');
 })().catch(e=>{console.error(e);process.exit(1)});
 """
     result = subprocess.run(
@@ -179,3 +229,37 @@ vm.runInNewContext(fs.readFileSync(process.argv[1],'utf8'),{browser,URL,Map,Set}
         text=True,
     )
     assert result.returncode == 0, result.stderr
+
+
+async def test_popup_explicit_consent_denial_and_stop():
+    extension = Path(__file__).resolve().parents[1] / "extension"
+    async with async_playwright() as playwright:
+        browser = await playwright.firefox.launch(headless=True)
+        page = await browser.new_page()
+        await page.set_content((extension / "popup.html").read_text())
+        await page.evaluate("""() => {
+          window.requests=[]; window.grant=false;
+          window.state={mode:'manual',eligible:true,approved:false,tabId:7};
+          window.browser={runtime:{sendMessage:async r=>{
+            requests.push(r.ui);
+            if(r.ui==='all')state.mode='all';
+            if(r.ui==='manual')state.mode='manual';
+            return state;
+          }}, permissions:{request:async()=>{requests.push('permission');return grant},
+            remove:async()=>{requests.push('remove');return true}}};
+        }""")
+        await page.evaluate((extension / "popup.js").read_text())
+        assert await page.locator("#all").is_disabled()
+        await page.locator("#consent").check()
+        await page.locator("#all").click()
+        await page.wait_for_function("document.querySelector('#error').textContent.includes('denied')")
+        assert "all" not in await page.evaluate("requests")
+        await page.evaluate("grant=true;requests=[]")
+        await page.locator("#all").click()
+        await page.wait_for_function("state.mode==='all'")
+        assert (await page.evaluate("requests"))[:2] == ["permission", "all"]
+        await page.locator("#manual").click()
+        await page.wait_for_function("state.mode==='manual' && requests.includes('remove')")
+        assert not await page.locator("#consent").is_checked()
+        assert await page.locator("#all").is_disabled()
+        await browser.close()

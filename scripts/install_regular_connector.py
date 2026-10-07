@@ -31,5 +31,5 @@ print(
     f"In normal Firefox, open about:debugging#/runtime/this-firefox, Load Temporary Add-on, select {root / 'extension/manifest.json'}"
 )
 print(
-    "Click connector toolbar button on Wellfound/Chiletrabajos to approve just that tab; click again to revoke."
+    "Open the connector toolbar popup: approve a website tab manually, or explicitly opt in to automatic website access."
 )

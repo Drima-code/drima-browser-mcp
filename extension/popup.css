@@ -1,0 +1,4 @@
+body { width: 360px; padding: 14px; font: 14px system-ui, sans-serif; color: #182334; background: #fafbff; }
+h1 { font-size: 20px; } h2 { font-size: 16px; margin-top: 20px; }
+p { line-height: 1.4; } button { display: block; margin: 10px 0; padding: 8px; width: 100%; }
+label { display: block; line-height: 1.4; } #error { color: #a01515; }
